@@ -8,6 +8,8 @@ import java.util.stream.Stream;
 
 public class StockMarketTrader {
 
+	static final int TICKS_AFTER_BUYING=2;
+
 	List<Float> prices;
 
 	StockMarketTrader(String pricesString) {
@@ -16,20 +18,21 @@ public class StockMarketTrader {
 			.collect(Collectors.toList());
 	}
 
-	public String bestTrades() {
-		int i=0;
-		int indexMin=0;
-		int indexMax=2; // one tick after
-		float min=0;
-		float max=0;
-		for (float price: prices) {
-			min=prices.get(indexMin);
-			max=prices.get(indexMax);
-			if (price<min) indexMin=i;
-			if ((price>max) && (indexMin+1<i)) indexMax=i;
-			i++;
+
+	public String bestTrade() {
+		float bestBuyPrice=0, bestSellPrice=0;
+		for (int buyTick=0; buyTick<prices.size()-TICKS_AFTER_BUYING; buyTick++) {
+			for (int sellTick=buyTick+TICKS_AFTER_BUYING; sellTick<prices.size(); sellTick++) {
+				float buyPrice = prices.get(buyTick);
+				float sellPrice = prices.get(sellTick);
+				if (sellPrice-buyPrice > bestSellPrice-bestBuyPrice) {
+					bestBuyPrice=buyPrice;
+					bestSellPrice=sellPrice;
+				}
+			}
 		}
-		return String.format(Locale.ROOT,"%.2f %.2f",min,max);
+		return String.format(Locale.ROOT,"%.2f %.2f",bestBuyPrice,bestSellPrice);
 	}
+
 
 }
